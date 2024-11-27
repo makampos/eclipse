@@ -141,4 +141,41 @@ public class TaskControllerTests : IClassFixture<CustomWebApplicationFactory>
         result.Should().NotBeNull();
         result.Should().Be("Task with id 0 not found");
     }
+
+    [Fact(DisplayName = "Given a valid request, When TaskController is called, And attempt to delete a task, Then a task is deleted")]
+    public async Task GivenAValidRequest_WhenTaskControllerIsCalled_AndAttemptToDeleteTask_ThenTaskIsDeleted()
+    {
+        // Setup
+        var projectCommand = CreateProjectRequestFaker.GenerateValidRequest();
+        var projectResponse = await _client.PostAsJsonAsync("/api/projects", projectCommand);
+        projectResponse.EnsureSuccessStatusCode();
+        var projectId = await projectResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>()
+            .ContinueWith(p => p.Result!.Data!.Id);
+
+        var taskCommand = CreateTaskRequestFaker.GenerateValidRequest(projectId);
+        var taskResponse = await _client.PostAsJsonAsync("/api/tasks", taskCommand);
+        taskResponse.EnsureSuccessStatusCode();
+        var taskId = await taskResponse.Content.ReadFromJsonAsync<ResultResponse<CreateTaskResult>>()
+            .ContinueWith(p => p.Result!.Data!.Id);
+
+        // When
+        var response = await _client.DeleteAsync($"/api/tasks/{taskId}");
+        response.EnsureSuccessStatusCode();
+
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact(DisplayName = "Given a valid request, When TaskController is called, And attempt to delete a task, Then a bad request is returned")]
+    public async Task GivenAValidRequest_WhenTaskControllerIsCalled_AndAttemptToDeleteNonExistingTask_ThenBadRequestIsReturned()
+    {
+        // When
+        var response = await _client.DeleteAsync("/api/tasks/0");
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        // Then
+        var result = await response.Content.ReadAsStringAsync();
+        result.Should().NotBeNull();
+        result.Should().Be($"Task with id: 0 not found");
+    }
 }

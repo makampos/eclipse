@@ -26,6 +26,7 @@ public class TaskController : ControllerBase
     {
         _logger.LogInformation("Controller {TaskController} triggered to handle {CreateTaskRequest}",
             nameof(TaskController), request);
+
         var command = request.ToCreateTaskCommand();
         var result = await _mediator.Send(command);
 
@@ -46,8 +47,27 @@ public class TaskController : ControllerBase
             nameof(TaskController), request);
 
         request = request.IncludeId(id);
-
         var command = request.ToUpdateTaskCommand();
+        var result = await _mediator.Send(command);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ErrorMessage);
+        }
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> DeleteTaskAsync([FromRoute] int id)
+    {
+        _logger.LogInformation("Controller {TaskController} triggered to handle {DeleteTaskRequest} with id: {Id}",
+            nameof(TaskController), nameof(DeleteTaskRequest), id);
+
+        var request = DeleteTaskRequest.Create(id);
+        var command = request.ToDeleteTaskCommand();
         var result = await _mediator.Send(command);
 
         if (!result.Success)
