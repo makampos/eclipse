@@ -8,7 +8,7 @@ builder.Services.BaseRegister(builder.Configuration);
 
 var app = builder.Build();
 
-DependencyInjection.MigrateDatabase(app.Services);
+// DependencyInjection.MigrateDatabase(app.Services);
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,4 +1,4 @@
-using EclipseWorks.Application.Features.Handlers;
+using EclipseWorks.Application.Handlers;
 using EclipseWorks.Application.Validators;
 using EclipseWorks.Domain.Interfaces.Abstractions;
 using EclipseWorks.Domain.Interfaces.Repositories;
@@ -28,8 +28,9 @@ public static class DependencyInjection
 
     private static IServiceCollection RegisterRepositories(this IServiceCollection services)
     {
-        services.AddScoped(typeof(ISampleUnitOfWork), typeof(SampleUnitOfWork));
-        services.AddScoped(typeof(ISampleRepository), typeof(SampleRepository));
+        services.AddScoped(typeof(IEclipseUnitOfWork), typeof(EclipseUnitOfWork));
+        services.AddScoped(typeof(IProjectRepository), typeof(ProjectRepository));
+        services.AddScoped(typeof(ITaskRepository), typeof(TaskRepository));
         return services;
     }
 

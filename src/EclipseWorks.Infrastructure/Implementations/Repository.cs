@@ -1,5 +1,6 @@
 using EclipseWorks.Domain.Interfaces.Abstractions;
 using EclipseWorks.Domain.Models;
+using Task = System.Threading.Tasks.Task;
 
 namespace EclipseWorks.Infrastructure.Implementations;
 
@@ -12,7 +13,7 @@ public class Repository<TEntity>(
     {
         if (entity is TrackableEntity trackable)
         {
-            trackable.Created("admin");
+            trackable.Created("user");
         }
 
         await Set.AddAsync(entity, cancellationToken);
@@ -22,7 +23,7 @@ public class Repository<TEntity>(
     {
         if (entity is TrackableEntity trackable)
         {
-            trackable.Updated("admin");
+            trackable.Updated("user");
         }
 
         await Task.Run(() =>
@@ -35,10 +36,11 @@ public class Repository<TEntity>(
     {
         if (entity is TrackableEntity trackable)
         {
-            trackable.Deleted("admin");
+            trackable.Deleted("user");
 
             await Task.Run(() =>
             {
+
                 Set.Update(entity);
             }, cancellationToken);
         }
@@ -49,5 +51,26 @@ public class Repository<TEntity>(
                 Set.Remove(entity);
             }, cancellationToken);
         }
+    }
+
+    public async Task DeleteRangeAsync(IEnumerable<TEntity> entities, CancellationToken cancellationToken = default)
+    {
+        foreach (var entity in entities)
+        {
+            if (entity is TrackableEntity trackable)
+            {
+                trackable.Deleted("user");
+
+                await Task.Run(() =>
+                {
+                    Set.Update(entity);
+                }, cancellationToken);
+            }
+        }
+
+        await Task.Run(() =>
+        {
+            Set.RemoveRange(entities);
+        }, cancellationToken);
     }
 }
