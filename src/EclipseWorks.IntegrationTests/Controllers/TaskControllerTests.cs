@@ -97,4 +97,48 @@ public class TaskControllerTests : IClassFixture<CustomWebApplicationFactory>
         result.Should().NotBeNull();
         result.Should().Be($"Project with id {request.ProjectId} not found");
     }
+
+    [Fact(DisplayName = "Given a valid request, When TaskController is called, And attempt to update a task, Then a task is updated")]
+    public async Task GivenAValidRequest_WhenTaskControllerIsCalled_AndAttemptToUpdateTask_ThenTaskIsUpdated()
+    {
+        // Setup
+        var projectCommand = CreateProjectRequestFaker.GenerateValidRequest();
+        var projectResponse = await _client.PostAsJsonAsync("/api/projects", projectCommand);
+        projectResponse.EnsureSuccessStatusCode();
+        var projectId = await projectResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>()
+            .ContinueWith(p => p.Result!.Data!.Id);
+
+        var taskCommand = CreateTaskRequestFaker.GenerateValidRequest(projectId);
+        var taskResponse = await _client.PostAsJsonAsync("/api/tasks", taskCommand);
+        taskResponse.EnsureSuccessStatusCode();
+        var taskId = await taskResponse.Content.ReadFromJsonAsync<ResultResponse<CreateTaskResult>>()
+            .ContinueWith(p => p.Result!.Data!.Id);
+
+        // Given
+        var request = UpdateTaskRequestFaker.GenerateValidRequest();
+
+        // When
+        var response = await _client.PutAsJsonAsync($"/api/tasks/{taskId}", request);
+        response.EnsureSuccessStatusCode();
+
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact(DisplayName = "Given a valid request, When TaskController is called, And attempt to update a task, Then a bad request is returned")]
+    public async Task
+    GivenAValidRequest_WhenTaskControllerIsCalled_AndAttemptToUpdateTaskForNonExistingTask_ThenBadRequestIsReturned()
+    {
+        // Given
+        var request = UpdateTaskRequestFaker.GenerateValidRequest();
+
+        // When
+        var response = await _client.PutAsJsonAsync("/api/tasks/0", request);
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+
+        // Then
+        var result = await response.Content.ReadAsStringAsync();
+        result.Should().NotBeNull();
+        result.Should().Be("Task with id 0 not found");
+    }
 }

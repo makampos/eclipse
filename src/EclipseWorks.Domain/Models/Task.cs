@@ -6,7 +6,7 @@ public class Task : TrackableEntity
 {
     public string Name { get; private set; }
     public string Description { get; private set; }
-    public PriorityLevel PriorityLevel { get; private set; } // Priority cannot be changed after creation
+    public PriorityLevel PriorityLevel { get; init; } // Priority cannot be changed after creation
     public bool IsCompleted { get; private set; } = false;
     public int ProjectId { get; private set; }
     public virtual Project Project { get; private set; }
@@ -31,6 +31,12 @@ public class Task : TrackableEntity
     public static Task Create(string name, string description, int projectId, PriorityLevel priorityLevel)
     {
         return new Task(name, description, projectId, priorityLevel);
+    }
+
+    public void Update(string name, string description)
+    {
+        Name = name;
+        Description = description;
     }
 
     public void MarkAsCompleted()

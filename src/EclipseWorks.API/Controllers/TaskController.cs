@@ -36,4 +36,25 @@ public class TaskController : ControllerBase
 
         return CreatedAtRoute(string.Empty, new { id = result.Data!.Id }, result);
     }
+
+    [HttpPut("{id:int}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateTaskAsync(int id, [FromBody] UpdateTaskRequest request)
+    {
+        _logger.LogInformation("Controller {TaskController} triggered to handle {UpdateTaskRequest}",
+            nameof(TaskController), request);
+
+        request = request.IncludeId(id);
+
+        var command = request.ToUpdateTaskCommand();
+        var result = await _mediator.Send(command);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ErrorMessage);
+        }
+
+        return NoContent();
+    }
 }
