@@ -15,7 +15,7 @@ public class CreateTaskRequestFaker
     public static CreateTaskRequest GenerateValidRequest(int projectId)
     {
         return _createTaskRequestFaker
-            .RuleFor(x => x.ProjectId, f => projectId)
+            .RuleFor(x => x.ProjectId, _ => projectId)
             .Generate();
     }
 

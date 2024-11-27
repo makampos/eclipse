@@ -45,7 +45,6 @@ public class ProjectController : ControllerBase
 
         if (!result.Success)
         {
-            // TODO: test this scenario
             return BadRequest(result.ErrorMessage);
         }
 

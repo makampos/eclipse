@@ -35,10 +35,10 @@ public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
 
         // Then
         response.StatusCode.Should().Be(HttpStatusCode.Created);
-        var result = await response.Content.ReadFromJsonAsync<CreateProjectResult>();
+        var result = await response.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>();
         result.Should().NotBeNull();
-        result!.Name.Should().Be(request.Name);
-        result.Description.Should().Be(request.Description);
+        result!.Data!.Name.Should().Be(request.Name);
+        result.Data!.Description.Should().Be(request.Description);
     }
 
     [Fact(DisplayName = $"Given a valid request, When {nameof(ProjectController)} is called, Then a project is deleted")]
@@ -65,4 +65,48 @@ public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
         result.Should().NotBeNull();
         result!.Data!.Message.Should().Be($"Project with name: {project.Name} has been deleted successfully");
     }
+
+    // write test for when project is not found while attempting to delete
+    [Fact(DisplayName = "Given a project does not exist, When DeleteProjectAsync is called," +
+                        " Then a 400 status code is returned")]
+    public async Task GivenAProjectDoesNotExist_WhenDeleteProjectAsyncIsCalled_ThenA400StatusCodeIsReturned()
+    {
+        // Given
+        var projectId = 0;
+
+        // When
+        var response = await _client.DeleteAsync($"/api/projects/{projectId}");
+
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var result = await response.Content.ReadAsStringAsync();
+        result.Should().NotBeNull();
+        result.Should().Be($"Project with id: {projectId} not found");
+    }
+
+    [Fact(DisplayName = $"Given a project has incomplete tasks, When {nameof(ProjectController)} is called, " +
+                        "Then a 400 status code is returned")]
+    public async Task GivenAProjectHasIncompleteTasks_WhenDeleteProjectAsyncIsCalled_ThenA400StatusCodeIsReturned()
+    {
+        // Setup
+        var project = CreateProjectRequestFaker.GenerateValidRequest();
+        var createResponse = await _client.PostAsJsonAsync("/api/projects", project);
+        createResponse.EnsureSuccessStatusCode();
+        var createProjectResult = await createResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>();
+        var projectId = createProjectResult!.Data!.Id;
+        var taskRequest = CreateTaskRequestFaker.GenerateValidRequest(projectId);
+        var createTaskResponse = await _client.PostAsJsonAsync("/api/tasks", taskRequest);
+        createTaskResponse.EnsureSuccessStatusCode();
+
+        // Given
+        // When
+        var response = await _client.DeleteAsync($"/api/projects/{projectId}");
+
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var result = await response.Content.ReadAsStringAsync();
+        result.Should().NotBeNull();
+        result.Should().Be("Project has incomplete tasks, please complete all tasks or delete them first");
+    }
+
 }

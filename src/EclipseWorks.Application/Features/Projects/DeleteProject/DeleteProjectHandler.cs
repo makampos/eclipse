@@ -23,7 +23,8 @@ public class DeleteProjectHandler : IRequestHandler<DeleteProjectCommand, Result
         _logger.LogInformation("Handler {DeleteProjectHandler} triggered to handle {DeleteProjectCommand}",
           nameof(DeleteProjectHandler), command);
 
-        var project = await _eclipseUnitOfWork.ProjectRepository.GetByIdAsync(command.Id, cancellationToken);
+        var project = await _eclipseUnitOfWork.ProjectRepository.GetByIdIncludeAsync(command.Id,
+            query => query.Include(task => task.Tasks), cancellationToken);
 
         if (project is null)
         {
