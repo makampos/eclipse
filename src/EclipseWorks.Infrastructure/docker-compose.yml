@@ -1,6 +1,6 @@
 version: '3.8'
 services:
-  postgres:
+  eclipse.db:
     image: postgres:latest
     environment:
       POSTGRES_USER: admin

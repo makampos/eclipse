@@ -5,25 +5,27 @@ using EclipseWorks.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace EclipseWorks.UnitTests.Handlers;
+namespace EclipseWorks.UnitTests.Features.Handlers;
 
 public abstract class BaseTestHandler<THandler> :  IDisposable, IAsyncDisposable where THandler : class
 {
-    protected readonly ISampleUnitOfWork SampleUnitOfWork;
+    protected readonly IEclipseUnitOfWork EclipseUnitOfWork;
     protected readonly ApplicationDbContext _dbContext;
-    protected readonly ISampleRepository SampleRepository;
+    protected readonly IProjectRepository ProjectRepository;
+    protected readonly ITaskRepository TaskRepository;
     protected readonly ILogger<THandler> _logger;
 
     protected BaseTestHandler()
     {
         var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseInMemoryDatabase(databaseName: "TestDatabase")
+            .UseInMemoryDatabase(databaseName: "EclipseWorks")
             .Options;
 
         _dbContext = new ApplicationDbContext(options);
-        SampleRepository = new SampleRepository(_dbContext);
+        ProjectRepository = new ProjectRepository(_dbContext);
+        TaskRepository = new TaskRepository(_dbContext);
         _logger = new Logger<THandler>(new LoggerFactory());
-        SampleUnitOfWork = new SampleUnitOfWork(_dbContext, SampleRepository);
+        EclipseUnitOfWork = new EclipseUnitOfWork(_dbContext, ProjectRepository, TaskRepository);
     }
 
     protected THandler CreateHandler(params object[] parameters)

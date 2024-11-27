@@ -4,8 +4,8 @@ using EclipseWorks.Infrastructure.Implementations;
 
 namespace EclipseWorks.Infrastructure.Repositories;
 
-public class SampleRepository
-    (ApplicationDbContext applicationDbContext) : Repository<SampleModel>(applicationDbContext), ISampleRepository
+public class ProjectRepository
+    (ApplicationDbContext applicationDbContext) : Repository<Project>(applicationDbContext), IProjectRepository
 {
 
 }

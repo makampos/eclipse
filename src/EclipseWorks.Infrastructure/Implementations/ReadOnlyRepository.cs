@@ -14,6 +14,18 @@ public class ReadOnlyRepository<TEntity>(
         return await SetAsTracking.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
     }
 
+    public async Task<TEntity?> GetByIdIncludeAsync(int id, Func<IQueryable<TEntity>, IQueryable<TEntity>>? includeFunc = null, CancellationToken cancellationToken = default)
+    {
+        IQueryable<TEntity?> query = applicationDbContext.Set<TEntity>();
+
+        if (includeFunc is not null)
+        {
+            query = includeFunc(query);
+        }
+
+        return await query.FirstOrDefaultAsync(p => p.Id == id, cancellationToken);
+    }
+
     public async Task<PagedResult<TEntity>> GetAllAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
         var totalCount = await SetAsNoTracking.CountAsync(cancellationToken);
