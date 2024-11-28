@@ -1,14 +1,20 @@
+using System.Text.Json.Serialization;
 using EclipseWorks.API;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddControllers();
+builder.Services.AddControllers().AddJsonOptions(options =>
+{
+    options.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+});
+
 builder.Services.BaseRegister(builder.Configuration);
 
 var app = builder.Build();
 
 // DependencyInjection.MigrateDatabase(app.Services);
+
 
 if (app.Environment.IsDevelopment())
 {

@@ -1,6 +1,7 @@
 using EclipseWorks.API.Requests.Projects;
 using EclipseWorks.Application.Features.CreateProject;
 using EclipseWorks.Application.Features.DeleteProject;
+using EclipseWorks.Application.Features.GetProject;
 using EclipseWorks.Domain.Results;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,25 @@ public class ProjectController : ControllerBase
     {
         _mediator = mediator;
         _logger = logger;
+    }
+
+    [HttpGet("{id:int}")]
+    [ProducesResponseType<ResultResponse<GetProjectResult>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetProjectAsync([FromRoute] int id)
+    {
+        _logger.LogInformation("Controller {ProjectController} triggered to handle {GetProjectRequest}",
+            nameof(ProjectController), id);
+        var request = GetProjectRequest.Create(id);
+        var command = request.ToGetProjectCommand();
+        var result = await _mediator.Send(command);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ErrorMessage);
+        }
+
+        return Ok(result); //TODO: Update to use TaskResult inside ResultResponse
     }
 
     [HttpPost]

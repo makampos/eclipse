@@ -6,13 +6,13 @@ public record CreateProjectResult(
     int Id,
     string Name,
     string Description,
-    IReadOnlyCollection<Task> Tasks)
+    ICollection<Task> Tasks)
 {
     private CreateProjectResult(int id, string name, string description) : this(
         id,
         name,
         description,
-        Array.Empty<Task>())
+        [])
     {
     }
 
