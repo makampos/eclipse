@@ -22,13 +22,18 @@ public class PagedResult<T>
     public bool HasPreviousPage => CurrentPage > 1;
     public bool HasNextPage => CurrentPage < TotalPages;
 
-    public PagedResult<TDto> ToDto<TDto>(Func<T, TDto> converter)
+    // public PagedResult<TDto> ToResult<TEntity>(Func<T, TDto> converter)
+    // {
+    //     return new PagedResult<TDto>(
+    //         Items?.Select(converter).ToList(),
+    //         TotalCount,
+    //         PageSize,
+    //         CurrentPage
+    //     );
+    // }
+
+    public static PagedResult<T> Create(IReadOnlyList<T>? items, int totalCount, int pageSize, int currentPage)
     {
-        return new PagedResult<TDto>(
-            Items?.Select(converter).ToList(),
-            TotalCount,
-            PageSize,
-            CurrentPage
-        );
+        return new PagedResult<T>(items, totalCount, pageSize, currentPage);
     }
 }

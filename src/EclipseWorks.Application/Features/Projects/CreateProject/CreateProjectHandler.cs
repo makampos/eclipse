@@ -1,4 +1,5 @@
 using EclipseWorks.Domain.Interfaces.Abstractions;
+using EclipseWorks.Domain.Models;
 using EclipseWorks.Domain.Results;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -16,16 +17,17 @@ public class CreateProjectHandler : IRequestHandler<CreateProjectCommand, Result
         _logger = logger;
     }
 
-    public async Task<ResultResponse<CreateProjectResult>> Handle(CreateProjectCommand command, CancellationToken cancellationToken)
+    public async Task<ResultResponse<CreateProjectResult>> Handle(CreateProjectCommand command,
+        CancellationToken cancellationToken)
     {
         _logger.LogInformation("Handler {CreateProjectHandler} triggered to handle {CreateProjectCommand}",
-          nameof(CreateProjectHandler), command);
+            nameof(CreateProjectHandler), command);
 
         var project = command.MapToEntity();
-
         await _eclipseUnitOfWork.ProjectRepository.AddAsync(project, cancellationToken);
+        var projectUser = ProjectUser.Create(command.UserId, project.Id);
+        project.AddProjectUser(projectUser);
         await _eclipseUnitOfWork.SaveChangesAsync(cancellationToken);
-
         var result = project.MapToCreateProjectResult();
         return ResultResponse<CreateProjectResult>.SuccessResult(result);
     }

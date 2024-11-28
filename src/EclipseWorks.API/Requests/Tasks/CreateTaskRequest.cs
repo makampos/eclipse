@@ -6,9 +6,10 @@ public record CreateTaskRequest(
     string Name,
     string Description,
     PriorityLevel PriorityLevel,
-    int ProjectId)
+    int ProjectId,
+    int UserId)
 {
-    public CreateTaskRequest() : this(string.Empty, string.Empty, PriorityLevel.None, 0)
+    public CreateTaskRequest() : this(string.Empty, string.Empty, PriorityLevel.None, 0, 0)
     {
     }
 }

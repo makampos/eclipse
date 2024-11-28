@@ -9,8 +9,10 @@ public static class CreateProjectRequestFaker
         .RuleFor(x => x.Name, f => f.Company.CompanyName())
         .RuleFor(x => x.Description, f => f.Lorem.Sentence());
 
-    public static CreateProjectRequest GenerateValidRequest()
+    public static CreateProjectRequest GenerateValidRequest(int userId)
     {
-        return _createProjectRequestFaker.Generate();
+        return _createProjectRequestFaker
+            .RuleFor(x => x.UserId, _ => userId)
+            .Generate();
     }
 }

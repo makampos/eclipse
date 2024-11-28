@@ -1,6 +1,7 @@
 using EclipseWorks.Application.Features.CreateProject;
 using EclipseWorks.Application.Features.Tasks.CreateTask;
 using EclipseWorks.Application.Features.Tasks.DeleteTask;
+using EclipseWorks.Application.Features.Users.CreateUser;
 using EclipseWorks.UnitTests.Features.TestData;
 using FluentAssertions;
 using Microsoft.EntityFrameworkCore;
@@ -20,12 +21,17 @@ public class DeleteTaskHandlerTests : BaseTestHandler<DeleteTaskHandler>
     public async Task GivenAValidCommand_WhenHandlerIsCalled_ThenATaskIsSoftDeleted()
     {
         // Setup
-        var projectCommand = CreateProjectHandlerFaker.GenerateValidCommand();
+        var createUserCommand = CreateUserHandlerFaker.GenerateValidCommand();
+        var user = createUserCommand.MapToEntity();
+        var userId = user.Id;
+        await EclipseUnitOfWork.UserRepository.AddAsync(user);
+        await EclipseUnitOfWork.SaveChangesAsync();
+        var projectCommand = CreateProjectHandlerFaker.GenerateValidCommand(userId);
         var projectEntity = projectCommand.MapToEntity();
         await EclipseUnitOfWork.ProjectRepository.AddAsync(projectEntity);
         await EclipseUnitOfWork.SaveChangesAsync();
         var projectId = projectEntity.Id;
-        var createTaskCommand = CreateTaskHandlerFaker.GenerateValidCommand(projectId);
+        var createTaskCommand = CreateTaskHandlerFaker.GenerateValidCommand(projectId, userId);
         var task = createTaskCommand.MapToEntity();
         await EclipseUnitOfWork.TaskRepository.AddAsync(task);
         await EclipseUnitOfWork.SaveChangesAsync();

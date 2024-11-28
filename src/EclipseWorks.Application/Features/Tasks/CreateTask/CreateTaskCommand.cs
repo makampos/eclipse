@@ -8,14 +8,16 @@ public record CreateTaskCommand(
     string Name,
     string Description,
     PriorityLevel PriorityLevel,
-    int ProjectId) : IRequest<ResultResponse<CreateTaskResult>>
+    int ProjectId,
+    int UserId) : IRequest<ResultResponse<CreateTaskResult>>
 {
-    public CreateTaskCommand() : this(string.Empty, string.Empty, PriorityLevel.None, 0)
+    public CreateTaskCommand() : this(string.Empty, string.Empty, PriorityLevel.None, 0, 0)
     {
 
     }
-    public static CreateTaskCommand Create(string name, string description, PriorityLevel priorityLevel, int projectId)
+    public static CreateTaskCommand Create(string name, string description, PriorityLevel priorityLevel, int
+            projectId, int userId)
     {
-        return new CreateTaskCommand(name, description, priorityLevel, projectId);
+        return new CreateTaskCommand(name, description, priorityLevel, projectId, userId);
     }
 }

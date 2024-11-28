@@ -39,9 +39,13 @@ public class Project : TrackableEntity
     public void RemoveUser(User user)
     {
         var projectUser = ProjectUsers.FirstOrDefault(pu => pu.UserId == user.Id);
-        if (projectUser != null)
+        if (projectUser is not null)
         {
             ProjectUsers.Remove(projectUser);
         }
+    }
+    public void AddProjectUser(ProjectUser projectUser)
+    {
+        ProjectUsers.Add(projectUser);
     }
 }

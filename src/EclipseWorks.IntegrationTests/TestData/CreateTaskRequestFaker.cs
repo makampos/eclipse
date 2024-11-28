@@ -12,17 +12,19 @@ public class CreateTaskRequestFaker
         .RuleFor(x => x.PriorityLevel, f => f.PickRandom<PriorityLevel>())
         .RuleFor(x => x.ProjectId, f => f.Random.Number(1, 100));
 
-    public static CreateTaskRequest GenerateValidRequest(int projectId)
+    public static CreateTaskRequest GenerateValidRequest(int projectId, int userId)
     {
         return _createTaskRequestFaker
             .RuleFor(x => x.ProjectId, _ => projectId)
+            .RuleFor(x => x.UserId, _ => userId)
             .Generate();
     }
 
-    public static IEnumerable<CreateTaskRequest> GenerateValidRequests(int count, int projectId)
+    public static IEnumerable<CreateTaskRequest> GenerateValidRequests(int count, int projectId, int userId)
     {
         return _createTaskRequestFaker
-            .RuleFor(x => x.ProjectId, f => projectId)
+            .RuleFor(x => x.ProjectId, _ => projectId)
+            .RuleFor(x => x.UserId, _ => userId)
             .Generate(count);
     }
 }

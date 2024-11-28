@@ -5,14 +5,15 @@ namespace EclipseWorks.Application.Features.CreateProject;
 
 public record CreateProjectCommand(
     string Name,
-    string Description) : IRequest<ResultResponse<CreateProjectResult>>
+    string Description,
+    int UserId) : IRequest<ResultResponse<CreateProjectResult>>
 {
-    public CreateProjectCommand() : this(string.Empty, string.Empty)
+    public CreateProjectCommand() : this(string.Empty, string.Empty, 0)
     {
 
     }
-    public static CreateProjectCommand Create(string name, string description)
+    public static CreateProjectCommand Create(string name, string description, int userId)
     {
-        return new CreateProjectCommand(name, description);
+        return new CreateProjectCommand(name, description, userId);
     }
 }

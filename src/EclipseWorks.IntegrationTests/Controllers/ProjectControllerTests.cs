@@ -1,9 +1,12 @@
 using System.Net;
 using System.Net.Http.Json;
 using EclipseWorks.API.Controllers;
+using EclipseWorks.API.Requests.Tasks;
 using EclipseWorks.Application.Features.CreateProject;
 using EclipseWorks.Application.Features.DeleteProject;
 using EclipseWorks.Application.Features.GetProject;
+using EclipseWorks.Application.Features.Tasks.CreateTask;
+using EclipseWorks.Application.Features.Users.CreateUser;
 using EclipseWorks.Domain.Results;
 using EclipseWorks.IntegrationTests.Factories;
 using EclipseWorks.IntegrationTests.TestData;
@@ -26,8 +29,14 @@ public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
     [Fact(DisplayName = $"Given a valid request, When {nameof(ProjectController)} is called, Then a project is created")]
     public async Task GivenAValidRequest_WhenProjectsControllerIsCalled_ThenAProjectIsCreated()
     {
+        // Setup
+        var createUserRequest = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserRequest);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
         // Given
-        var request = CreateProjectRequestFaker.GenerateValidRequest();
+        var request = CreateProjectRequestFaker.GenerateValidRequest(userId);
 
         // When
         var response = await _client.PostAsJsonAsync("/api/projects", request);
@@ -45,14 +54,24 @@ public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
     public async Task GivenAValidRequest_WhenProjectsControllerIsCalled_ThenAProjectIsDeleted()
     {
         // Setup
-        var project = CreateProjectRequestFaker.GenerateValidRequest();
+        var createUserRequest = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserRequest);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
+        var project = CreateProjectRequestFaker.GenerateValidRequest(userId);
         var createResponse = await _client.PostAsJsonAsync("/api/projects", project);
         createResponse.EnsureSuccessStatusCode();
         var createProjectResult = await createResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>();
         var projectId = createProjectResult!.Data!.Id;
-        var taskRequest = CreateTaskRequestFaker.GenerateValidRequest(projectId);
+        var taskRequest = CreateTaskRequestFaker.GenerateValidRequest(projectId, userId);
         var createTaskResponse = await _client.PostAsJsonAsync("/api/tasks", taskRequest);
         createTaskResponse.EnsureSuccessStatusCode();
+        var taskResult = await createTaskResponse.Content.ReadFromJsonAsync<ResultResponse<CreateTaskResult>>();
+        var taskId = taskResult!.Data!.Id;
+        var updateTaskRequest = UpdateTaskStatusRequest.Create(taskId, true);
+        var completeTaskResponse = await _client.PatchAsJsonAsync($"/api/tasks/{taskId}/status", updateTaskRequest);
+        completeTaskResponse.EnsureSuccessStatusCode();
 
         // Give
         // When
@@ -66,7 +85,6 @@ public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
         result!.Data!.Message.Should().Be($"Project with name: {project.Name} has been deleted successfully");
     }
 
-    // write test for when project is not found while attempting to delete
     [Fact(DisplayName = "Given a project does not exist, When DeleteProjectAsync is called," +
                         " Then a 400 status code is returned")]
     public async Task GivenAProjectDoesNotExist_WhenDeleteProjectAsyncIsCalled_ThenA400StatusCodeIsReturned()
@@ -89,12 +107,17 @@ public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
     public async Task GivenAProjectHasIncompleteTasks_WhenDeleteProjectAsyncIsCalled_ThenA400StatusCodeIsReturned()
     {
         // Setup
-        var project = CreateProjectRequestFaker.GenerateValidRequest();
+        var createUserCommand = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserCommand);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
+        var project = CreateProjectRequestFaker.GenerateValidRequest(userId);
         var createResponse = await _client.PostAsJsonAsync("/api/projects", project);
         createResponse.EnsureSuccessStatusCode();
         var createProjectResult = await createResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>();
         var projectId = createProjectResult!.Data!.Id;
-        var taskRequest = CreateTaskRequestFaker.GenerateValidRequest(projectId);
+        var taskRequest = CreateTaskRequestFaker.GenerateValidRequest(projectId, userId);
         var createTaskResponse = await _client.PostAsJsonAsync("/api/tasks", taskRequest);
         createTaskResponse.EnsureSuccessStatusCode();
 
@@ -113,12 +136,17 @@ public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
     public async Task GivenAValidRequest_WhenGetProjectAsyncIsCalled_ThenAProjectIsReturned()
     {
         // Setup
-        var project = CreateProjectRequestFaker.GenerateValidRequest();
+        var createUserCommand = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserCommand);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
+        var project = CreateProjectRequestFaker.GenerateValidRequest(userId);
         var createResponse = await _client.PostAsJsonAsync("/api/projects", project);
         createResponse.EnsureSuccessStatusCode();
         var createProjectResult = await createResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>();
         var projectId = createProjectResult!.Data!.Id;
-        var taskCommand = CreateTaskRequestFaker.GenerateValidRequest(projectId);
+        var taskCommand = CreateTaskRequestFaker.GenerateValidRequest(projectId, userId);
         var createTaskResponse = await _client.PostAsJsonAsync("/api/tasks", taskCommand);
         createTaskResponse.EnsureSuccessStatusCode();
 
@@ -156,4 +184,41 @@ public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
         result.Should().Be($"Project with id: {projectId} not found");
     }
 
+    [Fact(DisplayName = "Given a valid request, When GetProjectsByUserAsync is called, Then a list of projects is returned")]
+    public async Task GivenAValidRequest_WhenGetProjectsByUserAsyncIsCalled_ThenAListOfProjectsIsReturned()
+    {
+        // Setup
+        var createUserRequest = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserRequest);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
+        var createProjectRequest = CreateProjectRequestFaker.GenerateValidRequest(userId);
+        var createResponse = await _client.PostAsJsonAsync("/api/projects", createProjectRequest);
+        createResponse.EnsureSuccessStatusCode();
+        var createProjectResult = await createResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>();
+        var projectId = createProjectResult!.Data!.Id;
+        var createTaskRequest = CreateTaskRequestFaker.GenerateValidRequest(projectId, userId);
+        var createTaskResponse = await _client.PostAsJsonAsync("/api/tasks", createTaskRequest);
+        createTaskResponse.EnsureSuccessStatusCode();
+
+        // Given
+        // When
+        var response = await _client.GetAsync($"/api/projects/user/{userId}");
+
+        response.EnsureSuccessStatusCode();
+
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        var result = await response.Content.ReadFromJsonAsync<ResultResponse<PagedResult<GetProjectResult>>>();
+        result.Should().NotBeNull();
+        result!.Success.Should().BeTrue();
+        result.ErrorMessage.Should().BeNull();
+        result!.Data!.Items.Should().HaveCount(1);
+        result.Data.PageSize.Should().Be(10);
+        result.Data.CurrentPage.Should().Be(1);
+        result.Data.TotalPages.Should().Be(1);
+        result.Data.HasNextPage.Should().BeFalse();
+        result.Data.HasPreviousPage.Should().BeFalse();
+    }
 }

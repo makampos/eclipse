@@ -10,16 +10,19 @@ public static class CreateTaskHandlerFaker
         .RuleFor(x => x.Description, f => f.Lorem.Sentence())
         .RuleFor(x => x.ProjectId, f => f.Random.Int(1, 1000));
 
-    public static CreateTaskCommand GenerateValidCommand(int projectId)
-    {
-        return _createTaskCommandFaker
-            .RuleFor(x => x.ProjectId, f => projectId);
-    }
-
-    public static IEnumerable<CreateTaskCommand> GenerateValidCommands(int count, int projectId)
+    public static CreateTaskCommand GenerateValidCommand(int projectId, int userId)
     {
         return _createTaskCommandFaker
             .RuleFor(x => x.ProjectId, f => projectId)
+            .RuleFor(x => x.UserId, f => userId)
+            .Generate();
+    }
+
+    public static IEnumerable<CreateTaskCommand> GenerateValidCommands(int count, int projectId, int userId)
+    {
+        return _createTaskCommandFaker
+            .RuleFor(x => x.ProjectId, f => projectId)
+            .RuleFor(x => x.UserId, f => userId)
             .Generate(count);
     }
 }

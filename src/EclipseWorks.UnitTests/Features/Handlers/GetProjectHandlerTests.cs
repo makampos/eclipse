@@ -1,6 +1,7 @@
 using EclipseWorks.Application.Features.CreateProject;
 using EclipseWorks.Application.Features.GetProject;
 using EclipseWorks.Application.Features.Tasks.CreateTask;
+using EclipseWorks.Application.Features.Users.CreateUser;
 using EclipseWorks.UnitTests.Features.TestData;
 using FluentAssertions;
 
@@ -19,12 +20,17 @@ public class GetProjectHandlerTests : BaseTestHandler<GetProjectHandler>
     public async Task GivenValidRequest_WhenHandleAsyncIsCalled_ThenReturnProject()
     {
         // Setup
-        var createProjectCommand = CreateProjectHandlerFaker.GenerateValidCommand();
+        var createUserCommand = CreateUserHandlerFaker.GenerateValidCommand();
+        var user = createUserCommand.MapToEntity();
+        var userId = user.Id;
+        await EclipseUnitOfWork.UserRepository.AddAsync(user);
+        await EclipseUnitOfWork.SaveChangesAsync();
+        var createProjectCommand = CreateProjectHandlerFaker.GenerateValidCommand(userId);
         var project = createProjectCommand.MapToEntity();
         await EclipseUnitOfWork.ProjectRepository.AddAsync(project);
         await EclipseUnitOfWork.SaveChangesAsync();
         var projectId = project.Id;
-        var createTaskCommand = CreateTaskHandlerFaker.GenerateValidCommand(projectId);
+        var createTaskCommand = CreateTaskHandlerFaker.GenerateValidCommand(projectId, userId);
         var task = createTaskCommand.MapToEntity();
         await EclipseUnitOfWork.TaskRepository.AddAsync(task);
         await EclipseUnitOfWork.SaveChangesAsync();
@@ -51,12 +57,17 @@ public class GetProjectHandlerTests : BaseTestHandler<GetProjectHandler>
     public async Task GivenValidRequest_WhenHandleAsyncIsCalledAndProjectHasDeletedTask_ThenReturnProjectWithoutDeletedTask()
     {
         // Setup
-        var createProjectCommand = CreateProjectHandlerFaker.GenerateValidCommand();
+        var createUserCommand = CreateUserHandlerFaker.GenerateValidCommand();
+        var user = createUserCommand.MapToEntity();
+        var userId = user.Id;
+        await EclipseUnitOfWork.UserRepository.AddAsync(user);
+        await EclipseUnitOfWork.SaveChangesAsync();
+        var createProjectCommand = CreateProjectHandlerFaker.GenerateValidCommand(userId);
         var project = createProjectCommand.MapToEntity();
         await EclipseUnitOfWork.ProjectRepository.AddAsync(project);
         await EclipseUnitOfWork.SaveChangesAsync();
         var projectId = project.Id;
-        var createTaskCommand = CreateTaskHandlerFaker.GenerateValidCommand(projectId);
+        var createTaskCommand = CreateTaskHandlerFaker.GenerateValidCommand(projectId, userId);
         var task = createTaskCommand.MapToEntity();
         await EclipseUnitOfWork.TaskRepository.AddAsync(task);
         await EclipseUnitOfWork.SaveChangesAsync();

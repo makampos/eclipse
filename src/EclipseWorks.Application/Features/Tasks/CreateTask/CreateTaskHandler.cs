@@ -1,4 +1,6 @@
+using EclipseWorks.Domain.Enum;
 using EclipseWorks.Domain.Interfaces.Abstractions;
+using EclipseWorks.Domain.Models;
 using EclipseWorks.Domain.Results;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -39,8 +41,17 @@ public class CreateTaskHandler : IRequestHandler<CreateTaskCommand, ResultRespon
         }
 
         var task = command.MapToEntity();
+
+        var taskHistory = TaskHistory.Create(task.Id, TaskAction.Created, command.UserId);
+        var taskUser = TaskUser.Create(command.UserId, task.Id);
+
+        task.AddHistory(taskHistory);
+        task.AddTaskUser(taskUser);
+
         await _unitOfWork.TaskRepository.AddAsync(task, cancellationToken);
+
         await _unitOfWork.SaveChangesAsync(cancellationToken);
+
         var result = task.MapToCreateTaskResult();
         return ResultResponse<CreateTaskResult>.SuccessResult(result);
     }
