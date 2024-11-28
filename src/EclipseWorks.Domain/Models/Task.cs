@@ -39,13 +39,18 @@ public class Task : TrackableEntity
         Description = description;
     }
 
-    public void MarkAsCompleted()
+    public void UpdateStatus(bool status)
     {
-        IsCompleted = true;
+        IsCompleted = status;
     }
 
-    public void MarkAsIncompleted()
+    public void AddHistory(TaskHistory history)
     {
-        IsCompleted = false;
+        Histories.Add(history);
+    }
+
+    public void AddTaskUser(TaskUser taskUser)
+    {
+        TaskUsers.Add(taskUser);
     }
 }

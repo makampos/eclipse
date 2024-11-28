@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using EclipseWorks.API.Controllers;
 using EclipseWorks.Application.Features.CreateProject;
 using EclipseWorks.Application.Features.Tasks.CreateTask;
+using EclipseWorks.Application.Features.Users.CreateUser;
 using EclipseWorks.Domain.Results;
 using EclipseWorks.IntegrationTests.Factories;
 using EclipseWorks.IntegrationTests.TestData;
@@ -26,14 +27,19 @@ public class TaskControllerTests : IClassFixture<CustomWebApplicationFactory>
     public async Task GivenAValidRequest_WhenTasksControllerIsCalled_ThenATaskIsCreated()
     {
         // Setup
-        var projectCommand = CreateProjectRequestFaker.GenerateValidRequest();
+        var createUserCommand = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserCommand);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
+        var projectCommand = CreateProjectRequestFaker.GenerateValidRequest(userId);
         var projectResponse = await _client.PostAsJsonAsync("/api/projects", projectCommand);
         projectResponse.EnsureSuccessStatusCode();
         var projectId = await projectResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>()
             .ContinueWith(p => p.Result!.Data!.Id);
 
         // Given
-        var request = CreateTaskRequestFaker.GenerateValidRequest(projectId);
+        var request = CreateTaskRequestFaker.GenerateValidRequest(projectId, userId);
 
         // When
         var response = await _client.PostAsJsonAsync("/api/tasks", request);
@@ -55,13 +61,18 @@ public class TaskControllerTests : IClassFixture<CustomWebApplicationFactory>
         GivenAnInvalidRequest_WhenTasksControllerIsCalled_AndAttemptToCreateTaskExceedingMaxTasks_ThenBadRequestIsReturned()
     {
         // Setup
-        var projectRequest = CreateProjectRequestFaker.GenerateValidRequest();
+        var createUserCommand = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserCommand);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
+        var projectRequest = CreateProjectRequestFaker.GenerateValidRequest(userId);
         var projectResponse = await _client.PostAsJsonAsync("/api/projects", projectRequest);
         projectResponse.EnsureSuccessStatusCode();
         var projectId = await projectResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>()
             .ContinueWith(p => p.Result!.Data!.Id);
 
-        var createTaskRequests = CreateTaskRequestFaker.GenerateValidRequests(20, projectId);
+        var createTaskRequests = CreateTaskRequestFaker.GenerateValidRequests(20, projectId, userId);
         foreach (var createTasksRequests in createTaskRequests)
         {
             var createTasksResponses = await _client.PostAsJsonAsync("/api/tasks", createTasksRequests);
@@ -69,7 +80,7 @@ public class TaskControllerTests : IClassFixture<CustomWebApplicationFactory>
         }
 
         // Given
-        var createTaskRequest = CreateTaskRequestFaker.GenerateValidRequest(projectId);
+        var createTaskRequest = CreateTaskRequestFaker.GenerateValidRequest(projectId, userId);
 
         // When
         var response = await _client.PostAsJsonAsync("/api/tasks", createTaskRequest);
@@ -86,7 +97,7 @@ public class TaskControllerTests : IClassFixture<CustomWebApplicationFactory>
     public async Task GivenAnInvalidRequest_WhenTaskControllerIsCalled_AndAttemptToCreateTaskForNonExistentProject_ThenBadRequestIsReturned()
     {
         // Given
-        var request = CreateTaskRequestFaker.GenerateValidRequest(0);
+        var request = CreateTaskRequestFaker.GenerateValidRequest(0, 0);
 
         // When
         var response = await _client.PostAsJsonAsync("/api/tasks", request);
@@ -102,13 +113,18 @@ public class TaskControllerTests : IClassFixture<CustomWebApplicationFactory>
     public async Task GivenAValidRequest_WhenTaskControllerIsCalled_AndAttemptToUpdateTask_ThenTaskIsUpdated()
     {
         // Setup
-        var projectCommand = CreateProjectRequestFaker.GenerateValidRequest();
+        var createUserCommand = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserCommand);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
+        var projectCommand = CreateProjectRequestFaker.GenerateValidRequest(userId);
         var projectResponse = await _client.PostAsJsonAsync("/api/projects", projectCommand);
         projectResponse.EnsureSuccessStatusCode();
         var projectId = await projectResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>()
             .ContinueWith(p => p.Result!.Data!.Id);
 
-        var taskCommand = CreateTaskRequestFaker.GenerateValidRequest(projectId);
+        var taskCommand = CreateTaskRequestFaker.GenerateValidRequest(projectId, userId);
         var taskResponse = await _client.PostAsJsonAsync("/api/tasks", taskCommand);
         taskResponse.EnsureSuccessStatusCode();
         var taskId = await taskResponse.Content.ReadFromJsonAsync<ResultResponse<CreateTaskResult>>()
@@ -146,13 +162,18 @@ public class TaskControllerTests : IClassFixture<CustomWebApplicationFactory>
     public async Task GivenAValidRequest_WhenTaskControllerIsCalled_AndAttemptToDeleteTask_ThenTaskIsDeleted()
     {
         // Setup
-        var projectCommand = CreateProjectRequestFaker.GenerateValidRequest();
+        var createUserCommand = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserCommand);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
+        var projectCommand = CreateProjectRequestFaker.GenerateValidRequest(userId);
         var projectResponse = await _client.PostAsJsonAsync("/api/projects", projectCommand);
         projectResponse.EnsureSuccessStatusCode();
         var projectId = await projectResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>()
             .ContinueWith(p => p.Result!.Data!.Id);
 
-        var taskCommand = CreateTaskRequestFaker.GenerateValidRequest(projectId);
+        var taskCommand = CreateTaskRequestFaker.GenerateValidRequest(projectId, userId);
         var taskResponse = await _client.PostAsJsonAsync("/api/tasks", taskCommand);
         taskResponse.EnsureSuccessStatusCode();
         var taskId = await taskResponse.Content.ReadFromJsonAsync<ResultResponse<CreateTaskResult>>()

@@ -77,4 +77,24 @@ public class TaskController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpPatch("{id:int}/status")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> UpdateStatusAsync([FromRoute] int id, [FromBody] UpdateTaskStatusRequest request)
+    {
+        _logger.LogInformation("Controller {TaskController} triggered to handle {MarkTaskAsCompletedRequest} with id: {Id}",
+            nameof(TaskController), nameof(UpdateTaskStatusRequest), id);
+
+         request = request.IncludeId(id);
+        var command = request.ToCompleteTaskCommand();
+        var result = await _mediator.Send(command);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ErrorMessage);
+        }
+
+        return NoContent();
+    }
 }
