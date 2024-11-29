@@ -1,8 +1,8 @@
 using EclipseWorks.API.Requests.Projects;
+using EclipseWorks.Application.Features.AddUser;
 using EclipseWorks.Application.Features.CreateProject;
 using EclipseWorks.Application.Features.DeleteProject;
 using EclipseWorks.Application.Features.GetProject;
-using EclipseWorks.Application.Features.GetProjectsByUser;
 using EclipseWorks.Domain.Results;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -90,5 +90,25 @@ public class ProjectController : ControllerBase
         }
 
         return Ok(result);
+    }
+
+    [HttpPut("{projectId:int}/users")]
+    [ProducesResponseType<ResultResponse<AddUserResult>>(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> AddUserAsync([FromRoute] int projectId, [FromBody] AddUserRequest request)
+    {
+        _logger.LogInformation("Controller {ProjectController} triggered to handle {AddUserRequest}",
+            nameof(ProjectController), request);
+        request = request.IncludeProjectId(projectId);
+
+        var command = request.ToAddUserCommand();
+        var result = await _mediator.Send(command);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ErrorMessage);
+        }
+
+        return NoContent();
     }
 }
