@@ -42,7 +42,10 @@ public class CreateTaskHandler : IRequestHandler<CreateTaskCommand, ResultRespon
 
         var task = command.MapToEntity();
 
-        var taskHistory = TaskHistory.Create(task.Id, TaskAction.Created, command.UserId);
+        var taskHistory = TaskHistory.Create(
+            taskId: task.Id,
+            command.UserId,
+            taskAction: TaskAction.Created);
         var taskUser = TaskUser.Create(command.UserId, task.Id);
 
         task.AddHistory(taskHistory);

@@ -7,9 +7,10 @@ public record CreateTaskRequest(
     string Description,
     PriorityLevel PriorityLevel,
     int ProjectId,
-    int UserId)
+    int UserId,
+    DateOnly DueDate)
 {
-    public CreateTaskRequest() : this(string.Empty, string.Empty, PriorityLevel.None, 0, 0)
+    public CreateTaskRequest() : this(string.Empty, string.Empty, PriorityLevel.None, 0, 0, DateOnly.MinValue)
     {
     }
 }

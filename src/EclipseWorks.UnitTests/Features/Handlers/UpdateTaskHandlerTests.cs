@@ -4,6 +4,7 @@ using EclipseWorks.Application.Features.Tasks.UpdateTask;
 using EclipseWorks.Application.Features.Users.CreateUser;
 using EclipseWorks.UnitTests.Features.TestData;
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 
 namespace EclipseWorks.UnitTests.Features.Handlers;
 
@@ -40,21 +41,24 @@ public class UpdateTaskHandlerTests : BaseTestHandler<UpdateTaskHandler>
         // Setup
         var createUserCommand = CreateUserHandlerFaker.GenerateValidCommand();
         var user = createUserCommand.MapToEntity();
-        var userId = user.Id;
         await EclipseUnitOfWork.UserRepository.AddAsync(user);
         await EclipseUnitOfWork.SaveChangesAsync();
+        var userId = user.Id;
         var createProjectCommand = CreateProjectHandlerFaker.GenerateValidCommand(userId);
         var project = createProjectCommand.MapToEntity();
         await EclipseUnitOfWork.ProjectRepository.AddAsync(project);
         await EclipseUnitOfWork.SaveChangesAsync();
         var projectId = project.Id;
         var createTaskCommand = CreateTaskHandlerFaker.GenerateValidCommand(projectId, userId);
-        var task = createTaskCommand.MapToEntity();
-        await EclipseUnitOfWork.TaskRepository.AddAsync(task);
-        await EclipseUnitOfWork.SaveChangesAsync();
+
+        var createTaskHandler =
+            new CreateTaskHandler(EclipseUnitOfWork, new Logger<CreateTaskHandler>(new LoggerFactory()));
+        var createTaskHandlerResult = await createTaskHandler.Handle(createTaskCommand, CancellationToken.None);
+        createTaskHandlerResult.Success.Should().BeTrue();
+        var taskId = createTaskHandlerResult.Data!.Id;
 
         // Given
-        var command = UpdateTaskHandlerFaker.GenerateValidCommand(task.Id);
+        var command = UpdateTaskHandlerFaker.GenerateValidCommand(taskId);
 
         // When
         var result = await _handler.Handle(command, CancellationToken.None);

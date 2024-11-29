@@ -1,7 +1,10 @@
+using EclipseWorks.Domain.Enum;
 using EclipseWorks.Domain.Interfaces.Abstractions;
+using EclipseWorks.Domain.Models;
 using EclipseWorks.Domain.Results;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Task = EclipseWorks.Domain.Models.Task;
 
 namespace EclipseWorks.Application.Features.Tasks.UpdateStatus;
 
@@ -32,6 +35,16 @@ public class UpdateTaskStatusHandler : IRequestHandler<UpdateTaskStatusCommand, 
 
         task.UpdateStatus(statusCommand.Status);
 
+        var taskHistory = TaskHistory.Create(
+            taskId: task.Id,
+            taskAction: TaskAction.Modified,
+            userId: statusCommand.UserId,
+            affectedProperties: nameof(Task.Status)
+        );
+
+        task.AddHistory(taskHistory);
+
+        await _eclipseUnitOfWork.TaskRepository.UpdateAsync(task, cancellationToken);
         await _eclipseUnitOfWork.SaveChangesAsync(cancellationToken);
 
         return ResultResponse<UpdateTaskStatusResult>.SuccessResult(UpdateTaskStatusResult.Create("Task completed successfully"));

@@ -1,4 +1,6 @@
+using EclipseWorks.Domain.Enum;
 using EclipseWorks.Domain.Interfaces.Abstractions;
+using EclipseWorks.Domain.Models;
 using EclipseWorks.Domain.Results;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -31,8 +33,22 @@ public class UpdateTaskHandler : IRequestHandler<UpdateTaskCommand, ResultRespon
             return ResultResponse<UpdateTaskResult>.FailureResult($"Task with id {command.Id} not found");
         }
 
-        task.Update(command.Name, command.Description);
+        var affectedProperties = task.GetDifference(
+            name: command.Name,
+            description: command.Description,
+            dueDate: command.DueDate);
+
+        var taskHistory = TaskHistory.Create(
+            taskId: task.Id,
+            taskAction: TaskAction.Modified,
+            userId: command.UserId,
+            affectedProperties: affectedProperties
+        );
+
+        task.Update(command.Name, command.Description, command.DueDate);
+        task.AddHistory(taskHistory);
+
         await _eclipseUnitOfWork.TaskRepository.UpdateAsync(task, cancellationToken);
-        return ResultResponse<UpdateTaskResult>.SuccessResult(new UpdateTaskResult("Task updated successfully"));
+        return ResultResponse<UpdateTaskResult>.SuccessResult(UpdateTaskResult.Create("Task updated successfully"));
     }
 }

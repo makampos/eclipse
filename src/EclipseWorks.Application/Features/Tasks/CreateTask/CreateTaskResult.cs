@@ -8,12 +8,13 @@ public record CreateTaskResult(
     string Description,
     int ProjectId,
     PriorityLevel PriorityLevel,
-    bool IsCompleted
+    Status Status,
+    DateOnly DueDate
     )
 {
-    public static CreateTaskResult Create(int id, string name, string description, int projectId, PriorityLevel priority, bool
-            isCompleted)
+    public static CreateTaskResult Create(int id, string name, string description, int projectId, PriorityLevel
+            priority, Status status, DateOnly dueDate)
     {
-        return new CreateTaskResult(id, name, description, projectId, priority, isCompleted);
+        return new CreateTaskResult(id, name, description, projectId, priority, status, dueDate);
     }
 }

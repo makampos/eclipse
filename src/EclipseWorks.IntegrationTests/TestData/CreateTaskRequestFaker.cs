@@ -10,7 +10,8 @@ public class CreateTaskRequestFaker
         .RuleFor(x => x.Name, f => f.Company.CompanyName())
         .RuleFor(x => x.Description, f => f.Lorem.Sentence())
         .RuleFor(x => x.PriorityLevel, f => f.PickRandom<PriorityLevel>())
-        .RuleFor(x => x.ProjectId, f => f.Random.Number(1, 100));
+        .RuleFor(x => x.ProjectId, f => f.Random.Number(1, 100))
+        .RuleFor(x => x.DueDate, f => DateOnly.FromDateTime(f.Date.Future()));
 
     public static CreateTaskRequest GenerateValidRequest(int projectId, int userId)
     {
@@ -20,11 +21,13 @@ public class CreateTaskRequestFaker
             .Generate();
     }
 
-    public static IEnumerable<CreateTaskRequest> GenerateValidRequests(int count, int projectId, int userId)
+    public static IEnumerable<CreateTaskRequest> GenerateValidRequests(int count, int projectId, int userId, DateOnly
+            dueDate)
     {
         return _createTaskRequestFaker
             .RuleFor(x => x.ProjectId, _ => projectId)
             .RuleFor(x => x.UserId, _ => userId)
+            .RuleFor(x => x.DueDate, _ => dueDate)
             .Generate(count);
     }
 }
