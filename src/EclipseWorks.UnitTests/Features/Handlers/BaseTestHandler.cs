@@ -13,6 +13,10 @@ public abstract class BaseTestHandler<THandler> :  IDisposable, IAsyncDisposable
     protected readonly ApplicationDbContext _dbContext;
     protected readonly IProjectRepository ProjectRepository;
     protected readonly ITaskRepository TaskRepository;
+    protected readonly IUserRepository UserRepository;
+    protected readonly IProjectUserRepository ProjectUserRepository;
+    protected readonly ITaskHistoryRepository TaskHistoryRepository;
+    protected readonly ITaskUserRepository TaskUserRepository;
     protected readonly ILogger<THandler> _logger;
 
     protected BaseTestHandler()
@@ -24,8 +28,19 @@ public abstract class BaseTestHandler<THandler> :  IDisposable, IAsyncDisposable
         _dbContext = new ApplicationDbContext(options);
         ProjectRepository = new ProjectRepository(_dbContext);
         TaskRepository = new TaskRepository(_dbContext);
+        UserRepository = new UserRepository(_dbContext);
+        ProjectUserRepository = new ProjectUserRepository(_dbContext);
+        TaskHistoryRepository = new TaskHistoryRepository(_dbContext);
+        TaskUserRepository = new TaskUserRepository(_dbContext);
         _logger = new Logger<THandler>(new LoggerFactory());
-        EclipseUnitOfWork = new EclipseUnitOfWork(_dbContext, ProjectRepository, TaskRepository);
+        EclipseUnitOfWork = new EclipseUnitOfWork(
+            _dbContext,
+            ProjectRepository,
+            TaskRepository,
+            UserRepository,
+            ProjectUserRepository,
+            TaskHistoryRepository,
+            TaskUserRepository);
     }
 
     protected THandler CreateHandler(params object[] parameters)

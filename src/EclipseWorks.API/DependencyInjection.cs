@@ -31,6 +31,10 @@ public static class DependencyInjection
         services.AddScoped(typeof(IEclipseUnitOfWork), typeof(EclipseUnitOfWork));
         services.AddScoped(typeof(IProjectRepository), typeof(ProjectRepository));
         services.AddScoped(typeof(ITaskRepository), typeof(TaskRepository));
+        services.AddScoped(typeof(ITaskHistoryRepository), typeof(TaskHistoryRepository));
+        services.AddScoped(typeof(IUserRepository), typeof(UserRepository));
+        services.AddScoped(typeof(IProjectUserRepository), typeof(ProjectUserRepository));
+        services.AddScoped(typeof(ITaskUserRepository), typeof(TaskUserRepository));
         return services;
     }
 

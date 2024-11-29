@@ -9,6 +9,16 @@ public class ReadOnlyRepository<TEntity>(
     ApplicationDbContext applicationDbContext
 ) : RepositoryProperties<TEntity>(applicationDbContext), IReadOnlyRepository<TEntity> where TEntity : Entity
 {
+    public async Task<ICollection<TEntity>> GetByIdAsync(Func<IQueryable<TEntity>, IQueryable<TEntity>> keyComposition,
+        CancellationToken
+            cancellationToken = default)
+    {
+        IQueryable<TEntity> query = applicationDbContext.Set<TEntity>();
+
+       return await keyComposition(query)
+            .ToListAsync(cancellationToken: cancellationToken);
+    }
+
     public async Task<TEntity?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
     {
         return await SetAsTracking.FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
