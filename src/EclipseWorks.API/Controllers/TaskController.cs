@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EclipseWorks.API.Controllers;
 
+/// <summary>
+///  This controller handles task-related operations.
+/// </summary>
 [ApiController]
 [Route("api/tasks")]
 public class TaskController : ControllerBase
@@ -20,6 +23,9 @@ public class TaskController : ControllerBase
         _logger = logger;
     }
 
+    /// <summary>
+    ///  Creates a new task.
+    /// </summary>
     [HttpPost]
     [ProducesResponseType<ResultResponse<CreateTaskResult>>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -39,6 +45,9 @@ public class TaskController : ControllerBase
         return CreatedAtRoute(string.Empty, new { id = result.Data!.Id }, result);
     }
 
+    /// <summary>
+    /// Updates a tasks.
+    /// </summary>
     [HttpPut("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -59,6 +68,9 @@ public class TaskController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    ///  Deletes a task by its ID.
+    /// </summary>
     [HttpDelete("{id:int}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -79,6 +91,9 @@ public class TaskController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    /// Updates task status.
+    /// </summary>
     [HttpPatch("{id:int}/status")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -99,6 +114,9 @@ public class TaskController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>
+    ///  Creates a new comment for a task.
+    /// </summary>
     [HttpPost("{id:int}/comments")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -119,6 +137,9 @@ public class TaskController : ControllerBase
         return CreatedAtRoute(string.Empty, new { id = result.Data!.Id }, result);
     }
 
+    /// <summary>
+    ///  Gets the number of completed tasks for a given user.
+    /// </summary>
     [HttpGet("performance-report")]
     [ProducesResponseType<ResultResponse<PerformanceReportResult>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

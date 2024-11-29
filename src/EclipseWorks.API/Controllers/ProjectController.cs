@@ -9,6 +9,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EclipseWorks.API.Controllers;
 
+/// <summary>
+/// This controller handles project-related operations.
+/// </summary>
 [ApiController]
 [Route("api/projects")]
 public class ProjectController : ControllerBase
@@ -22,6 +25,10 @@ public class ProjectController : ControllerBase
         _logger = logger;
     }
 
+    /// <summary>
+    ///  Gets all projects for a user.
+    /// </summary>
+    /// <returns></returns>
     [HttpGet("user/{userId:int}")]
     [ProducesResponseType<ResultResponse<PagedResult<GetProjectResult>>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -42,6 +49,9 @@ public class ProjectController : ControllerBase
         return Ok(result); //TODO: Update to use TaskResult inside ResultResponse
     }
 
+    /// <summary>
+    ///   Gets a project by its ID.
+    /// </summary>
     [HttpGet("{id:int}")]
     [ProducesResponseType<ResultResponse<GetProjectResult>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -61,6 +71,10 @@ public class ProjectController : ControllerBase
         return Ok(result); //TODO: Update to use TaskResult inside ResultResponse
     }
 
+
+    /// <summary>
+    /// Creates a new project.
+    /// </summary>
     [HttpPost]
     [ProducesResponseType<ResultResponse<CreateProjectResult>>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -73,6 +87,9 @@ public class ProjectController : ControllerBase
         return CreatedAtRoute(string.Empty, new { id = result.Data!.Id }, result);
     }
 
+    /// <summary>
+    ///  Deletes a project by its ID.
+    /// </summary>
     [HttpDelete("{id:int}")]
     [ProducesResponseType<ResultResponse<DeleteProjectResult>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -92,6 +109,9 @@ public class ProjectController : ControllerBase
         return Ok(result);
     }
 
+    /// <summary>
+    ///  Adds a user to a project.
+    /// </summary>
     [HttpPut("{projectId:int}/users")]
     [ProducesResponseType<ResultResponse<AddUserResult>>(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

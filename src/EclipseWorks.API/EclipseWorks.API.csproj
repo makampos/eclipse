@@ -23,4 +23,9 @@
       <ProjectReference Include="..\EclipseWorks.Infrastructure\EclipseWorks.Infrastructure.csproj" />
     </ItemGroup>
 
+    <PropertyGroup>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <DocumentationFile>bin\Debug\net8.0\EclipseWorks.API.xml</DocumentationFile>
+    </PropertyGroup>
+
 </Project>

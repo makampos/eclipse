@@ -1,3 +1,4 @@
+using System.Reflection;
 using EclipseWorks.Application.Handlers;
 using EclipseWorks.Application.Validators;
 using EclipseWorks.Domain.Interfaces.Abstractions;
@@ -83,14 +84,18 @@ public static class DependencyInjection
     {
         services.AddSwaggerGen(c =>
         {
+
+            var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+            c.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, xmlFilename));
+
             c.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "Sample Swagger",
+                Title = "EclipseWorks wagger",
                 Contact = new OpenApiContact
                 {
-                    Name = "Sample Development Team",
-                    Email = "Sample@sample.com",
-                    Url = new Uri("https://sample.com")
+                    Name = "eclipseworks development team",
+                    Email = "eclipseworks@eclipseworks.com",
+                    Url = new Uri("http://eclipseworks.com.br")
                 }
             });
         });

@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EclipseWorks.API.Controllers;
 
+/// <summary>
+///  This controller handles user-related operations.
+/// </summary>
 [ApiController]
 [Route("api/users")]
 public class UserController : ControllerBase
@@ -19,6 +22,9 @@ public class UserController : ControllerBase
         _logger = logger;
     }
 
+    /// <summary>
+    ///  Creates a new user.
+    /// </summary>
     [HttpPost]
     [ProducesResponseType<ResultResponse<CreateUserResult>>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
