@@ -25,3 +25,6 @@ Once the containers are up and running, you can access the Swagger API documenta
 ## Coverage
 ![Screenshot 2024-11-29 at 18 04 40](https://github.com/user-attachments/assets/997a5de8-12b4-438a-b00d-0ac74a7f60f3)
 
+## Database Schema
+
+![eclipsedb](https://github.com/user-attachments/assets/69691ec4-a90f-46e4-959d-b5d7841ad921)
