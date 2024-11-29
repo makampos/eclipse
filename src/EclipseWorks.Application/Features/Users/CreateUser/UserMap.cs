@@ -6,7 +6,7 @@ public static class UserMap
 {
     public static User MapToEntity(this CreateUserCommand command)
     {
-        return User.Create(command.Username);
+        return User.Create(command.Username, command.Role);
     }
 
     public static CreateUserResult MapToCreateUserResult(this User user)

@@ -6,6 +6,6 @@ public static class UserMap
 {
     public static CreateUserCommand MapToCommand(this CreateUserRequest request)
     {
-        return CreateUserCommand.Create(request.Username);
+        return CreateUserCommand.Create(request.Username, request.Role);
     }
 }
