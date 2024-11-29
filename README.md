@@ -20,3 +20,8 @@ During this process, Docker will automatically create the database and run any m
 Once the containers are up and running, you can access the Swagger API documentation by navigating to:
 
 ```http://localhost:8080/swagger/index.html```
+
+
+## Coverage
+![Screenshot 2024-11-29 at 18 04 40](https://github.com/user-attachments/assets/997a5de8-12b4-438a-b00d-0ac74a7f60f3)
+
