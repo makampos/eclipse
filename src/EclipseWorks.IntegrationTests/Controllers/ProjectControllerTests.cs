@@ -222,4 +222,65 @@ public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
         result.Data.HasNextPage.Should().BeFalse();
         result.Data.HasPreviousPage.Should().BeFalse();
     }
+
+    [Fact(DisplayName = "Given a valid request, When AddUserAsync is called, Then a user is added to the project")]
+    public async Task GivenAValidRequest_WhenAddUserAsyncIsCalled_ThenAUserIsAddedToTheProject()
+    {
+        // Setup
+        var createUserRequest = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserRequest);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
+        var project = CreateProjectRequestFaker.GenerateValidRequest(userId);
+        var createResponse = await _client.PostAsJsonAsync("/api/projects", project);
+        createResponse.EnsureSuccessStatusCode();
+        var createProjectResult = await createResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>();
+        var projectId = createProjectResult!.Data!.Id;
+
+        // create second user
+        var createUserRequest2 = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse2 = await _client.PostAsJsonAsync("/api/users", createUserRequest2);
+        createUserResponse2.EnsureSuccessStatusCode();
+        var createUserResult2 = await createUserResponse2.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var secondUserId = createUserResult2!.Data!.Id;
+
+        // Given
+        var request = AddUserRequestFaker.GenerateValidRequest(secondUserId, projectId);
+
+        // When
+        var response = await _client.PutAsJsonAsync($"/api/projects/{projectId}/users", request);
+        response.EnsureSuccessStatusCode();
+
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
+    }
+
+    [Fact(DisplayName = "Given a user already exists in the project, When AddUserAsync is called, Then a 400 status code is returned")]
+    public async Task GivenAUserAlreadyExistsInTheProject_WhenAddUserAsyncIsCalled_ThenA400StatusCodeIsReturned()
+    {
+        // Setup
+        var createUserRequest = CreateUserRequestFaker.GenerateValidRequest();
+        var createUserResponse = await _client.PostAsJsonAsync("/api/users", createUserRequest);
+        createUserResponse.EnsureSuccessStatusCode();
+        var createUserResult = await createUserResponse.Content.ReadFromJsonAsync<ResultResponse<CreateUserResult>>();
+        var userId = createUserResult!.Data!.Id;
+        var project = CreateProjectRequestFaker.GenerateValidRequest(userId);
+        var createResponse = await _client.PostAsJsonAsync("/api/projects", project);
+        createResponse.EnsureSuccessStatusCode();
+        var createProjectResult = await createResponse.Content.ReadFromJsonAsync<ResultResponse<CreateProjectResult>>();
+        var projectId = createProjectResult!.Data!.Id;
+
+        // Given
+        var request = AddUserRequestFaker.GenerateValidRequest(userId, projectId);
+
+        // When
+        var response = await _client.PutAsJsonAsync($"/api/projects/{projectId}/users", request);
+
+        // Then
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        var result = await response.Content.ReadAsStringAsync();
+        result.Should().NotBeNull();
+        result.Should().Be($"User with id {userId} already exists in project with id {projectId}");
+    }
 }

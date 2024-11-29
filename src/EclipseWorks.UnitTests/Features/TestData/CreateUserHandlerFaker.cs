@@ -11,4 +11,9 @@ public class CreateUserHandlerFaker
     {
         return _userFaker.Generate();
     }
+
+    public static List<CreateUserCommand> GenerateValidCommands(int count)
+    {
+        return _userFaker.Generate(count);
+    }
 }

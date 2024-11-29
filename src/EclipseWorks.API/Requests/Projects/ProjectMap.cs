@@ -1,3 +1,4 @@
+using EclipseWorks.Application.Features.AddUser;
 using EclipseWorks.Application.Features.CreateProject;
 using EclipseWorks.Application.Features.DeleteProject;
 using EclipseWorks.Application.Features.GetProject;
@@ -25,5 +26,10 @@ public static class ProjectMap
     public static GetProjectsByUserCommand ToGetProjectsByUserCommand(this GetProjectsByUserRequest request)
     {
         return GetProjectsByUserCommand.Create(request.Id, request.PageNumber, request.PageSize);
+    }
+
+    public static AddUserCommand ToAddUserCommand(this AddUserRequest request)
+    {
+        return AddUserCommand.Create(request.ProjectId, request.UserId);
     }
 }
