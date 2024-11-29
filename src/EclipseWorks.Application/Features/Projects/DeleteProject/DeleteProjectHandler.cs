@@ -1,3 +1,4 @@
+using EclipseWorks.Domain.Enum;
 using EclipseWorks.Domain.Interfaces.Abstractions;
 using EclipseWorks.Domain.Results;
 using MediatR;
@@ -32,7 +33,7 @@ public class DeleteProjectHandler : IRequestHandler<DeleteProjectCommand, Result
             return ResultResponse<DeleteProjectResult>.FailureResult($"Project with id: {command.Id} not found");
         }
 
-        if (project.Tasks.Any(x => !x.IsCompleted))
+        if (project.Tasks.Any(x => x.Status is (Status.InProgress) or (Status.Pending)))
         {
             _logger.LogWarning("Project with id {Id} has incomplete tasks", command.Id);
             return ResultResponse<DeleteProjectResult>.FailureResult(

@@ -7,6 +7,7 @@ using EclipseWorks.Application.Features.DeleteProject;
 using EclipseWorks.Application.Features.GetProject;
 using EclipseWorks.Application.Features.Tasks.CreateTask;
 using EclipseWorks.Application.Features.Users.CreateUser;
+using EclipseWorks.Domain.Enum;
 using EclipseWorks.Domain.Results;
 using EclipseWorks.IntegrationTests.Factories;
 using EclipseWorks.IntegrationTests.TestData;
@@ -69,7 +70,7 @@ public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
         createTaskResponse.EnsureSuccessStatusCode();
         var taskResult = await createTaskResponse.Content.ReadFromJsonAsync<ResultResponse<CreateTaskResult>>();
         var taskId = taskResult!.Data!.Id;
-        var updateTaskRequest = UpdateTaskStatusRequest.Create(taskId, true);
+        var updateTaskRequest = UpdateTaskStatusRequest.Create(taskId, Status.Completed, userId);
         var completeTaskResponse = await _client.PatchAsJsonAsync($"/api/tasks/{taskId}/status", updateTaskRequest);
         completeTaskResponse.EnsureSuccessStatusCode();
 

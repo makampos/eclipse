@@ -2,6 +2,7 @@ using EclipseWorks.Application.Features.CreateProject;
 using EclipseWorks.Application.Features.DeleteProject;
 using EclipseWorks.Application.Features.Tasks.CreateTask;
 using EclipseWorks.Application.Features.Users.CreateUser;
+using EclipseWorks.Domain.Enum;
 using EclipseWorks.UnitTests.Features.TestData;
 using FluentAssertions;
 
@@ -110,7 +111,7 @@ public class DeleteProjectHandlerTests : BaseTestHandler<DeleteProjectHandler>
 
         var createTaskCommand = CreateTaskHandlerFaker.GenerateValidCommand(project.Id, userId);
         var task = createTaskCommand.MapToEntity();
-        task.UpdateStatus(true);
+        task.UpdateStatus(Status.Completed);
         await EclipseUnitOfWork.TaskRepository.AddAsync(task);
         await EclipseUnitOfWork.SaveChangesAsync();
 

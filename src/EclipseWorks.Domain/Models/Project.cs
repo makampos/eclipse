@@ -5,8 +5,6 @@ public class Project : TrackableEntity
     public string Name { get; set; }
     public string Description { get; set; }
     public virtual ICollection<Task> Tasks { get; set; } = [];
-
-    // Navigation property for the many-to-many relationship
     public virtual ICollection<ProjectUser> ProjectUsers { get; set; } = [];
 
     private Project(string name, string description)
