@@ -42,7 +42,7 @@ public static class DependencyInjection
     private static IServiceCollection RegisterDBContext(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("Database")));
         services.AddScoped<DbContext, ApplicationDbContext>();
 
         return services;
@@ -56,7 +56,7 @@ public static class DependencyInjection
             try
             {
                 var context = services.GetRequiredService<ApplicationDbContext>();
-                context.Database.MigrateAsync();
+                context.Database.EnsureCreated();
             }
             catch (Exception ex)
             {

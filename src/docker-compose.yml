@@ -13,13 +13,13 @@ services:
       - pgdata:/var/lib/postgresql/data
 
   eclipse.api:
-    image: eclipseapi
+    image: eclipseworks.api
     container_name: eclipse.api
     build:
       context: .
       dockerfile: EclipseWorks.API/Dockerfile
     ports:
-      - "5001:5001"
+      - "8080:8080"
     depends_on:
       - eclipse.db
 
