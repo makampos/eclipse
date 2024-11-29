@@ -1,5 +1,6 @@
 using EclipseWorks.API.Requests.Tasks;
 using EclipseWorks.Application.Features.Tasks.CreateTask;
+using EclipseWorks.Domain.Models;
 using EclipseWorks.Domain.Results;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -96,5 +97,44 @@ public class TaskController : ControllerBase
         }
 
         return NoContent();
+    }
+
+    [HttpPost("{id:int}/comments")]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateCommentAsync(int id, [FromBody] CreateCommentRequest request)
+    {
+        _logger.LogInformation("Controller {TaskController} triggered to handle {CreateCommentRequest}",
+            nameof(TaskController), request);
+
+        request = request.IncludeTaskId(id);
+        var command = request.ToCreateCommentCommand();
+        var result = await _mediator.Send(command);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ErrorMessage);
+        }
+
+        return CreatedAtRoute(string.Empty, new { id = result.Data!.Id }, result);
+    }
+
+    [HttpGet("performance-report")]
+    [ProducesResponseType<ResultResponse<PerformanceReportResult>>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> GetAverageCompletedTasksPerUserAsync([FromQuery] GetAverageCompletedTasksPerUserRequest request)
+    {
+        _logger.LogInformation("Controller {TaskController} triggered to handle {GetAverageCompletedTasksPerUserRequest}",
+            nameof(TaskController), request);
+
+        var command = request.ToGetAverageCompletedTasksPerUserCommand();
+        var result = await _mediator.Send(command);
+
+        if (!result.Success)
+        {
+            return BadRequest(result.ErrorMessage);
+        }
+
+        return Ok(result);
     }
 }
