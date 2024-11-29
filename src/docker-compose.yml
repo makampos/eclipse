@@ -2,6 +2,7 @@ version: '3.8'
 services:
   eclipse.db:
     image: postgres:latest
+    container_name: eclipse.db
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin
@@ -10,6 +11,17 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  eclipse.api:
+    image: eclipseapi
+    container_name: eclipse.api
+    build:
+      context: .
+      dockerfile: EclipseWorks.API/Dockerfile
+    ports:
+      - "5001:5001"
+    depends_on:
+      - eclipse.db
 
 volumes:
   pgdata:

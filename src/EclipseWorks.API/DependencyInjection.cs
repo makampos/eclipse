@@ -56,7 +56,7 @@ public static class DependencyInjection
             try
             {
                 var context = services.GetRequiredService<ApplicationDbContext>();
-                context.Database.Migrate();
+                context.Database.MigrateAsync();
             }
             catch (Exception ex)
             {
@@ -90,7 +90,7 @@ public static class DependencyInjection
 
             c.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "EclipseWorks wagger",
+                Title = "Eclipseworks swagger",
                 Contact = new OpenApiContact
                 {
                     Name = "eclipseworks development team",
