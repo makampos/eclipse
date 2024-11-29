@@ -342,15 +342,17 @@ public class TaskControllerTests : IClassFixture<CustomWebApplicationFactory>
         // Given
         var startDate = DateTime.Now.AddDays(15);
         var endDate = DateTime.Now;
+        var id = 0;
 
         // When
-        var reportResponse = await _client.GetAsync($"/api/tasks/performance-report?userId=0&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}");
+        var reportResponse = await _client.GetAsync
+            ($"/api/tasks/performance-report?userId={id}&startDate={startDate:yyyy-MM-dd}&endDate={endDate:yyyy-MM-dd}");
 
         // Then
         reportResponse.StatusCode.Should().Be(HttpStatusCode.BadRequest);
         var result = await reportResponse.Content.ReadAsStringAsync();
         result.Should().NotBeNull();
-        result.Should().Be("User with id 0 not found");
+        result.Should().Be($"User with id: {id} not found");
     }
 
     [Fact(DisplayName = "Given an invalid request, When TaskController is called, And attempt to get the average number " +
