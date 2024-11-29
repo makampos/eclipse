@@ -1,4 +1,4 @@
-using EclipseWorks.Domain.Enum;
+using EclipseWorks.Application.Specifications;
 using EclipseWorks.Domain.Interfaces.Abstractions;
 using EclipseWorks.Domain.Models;
 using EclipseWorks.Domain.Results;
@@ -26,17 +26,23 @@ public class GetAverageCompletedTasksPerUserHandler : IRequestHandler<GetAverage
 
         var user = await _eclipseUnitOfWork.UserRepository.GetByIdAsync(command.UserId, cancellationToken);
 
-        if (user is null || user.Role is not Role.Manager)
+        if (user is null)
         {
-            var errorMessage = user is null
-                ? $"User with id {command.UserId} not found"
-                : "Current role are not allowed for this operation";
-
-            _logger.LogWarning(errorMessage);
-            return ResultResponse<PerformanceReportResult>.FailureResult(errorMessage);
+            _logger.LogWarning("User with id: {Id} not found", command.UserId);
+            return ResultResponse<PerformanceReportResult>.FailureResult($"User with id: {command.UserId} not found");
         }
 
-        if (command.StartDate > command.EndDate)
+        var userIsNotManagerSpecification = new UserIsNotManagerSpecification();
+
+        if (userIsNotManagerSpecification.IsSatisfiedBy(user))
+        {
+            _logger.LogWarning("Current role are not allowed for this operation");
+            return ResultResponse<PerformanceReportResult>.FailureResult("Current role are not allowed for this operation");
+        }
+
+        var startDateBeforeEndDateSpecification = new StartDateBeforeEndDateSpecification();
+
+        if (startDateBeforeEndDateSpecification.IsSatisfiedBy(command))
         {
             _logger.LogError("Start date must be before end date");
             return ResultResponse<PerformanceReportResult>.FailureResult("Start date must be before end date");

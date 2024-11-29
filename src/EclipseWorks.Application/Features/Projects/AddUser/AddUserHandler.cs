@@ -1,3 +1,4 @@
+using EclipseWorks.Application.Specifications;
 using EclipseWorks.Domain.Interfaces.Abstractions;
 using EclipseWorks.Domain.Models;
 using EclipseWorks.Domain.Results;
@@ -33,9 +34,9 @@ public class AddUserHandler : IRequestHandler<AddUserCommand, ResultResponse<Add
             return ResultResponse<AddUserResult>.FailureResult($"Project with id {command.ProjectId} not found");
         }
 
-        var isExist = project.ProjectUsers.Any(pu => pu.UserId == command.UserId && pu.ProjectId == command.ProjectId);
+        var userExistsSpecification = new UserExistsInProjectSpecification(command.UserId, command.ProjectId);
 
-        if (isExist)
+        if (userExistsSpecification.IsSatisfiedBy(project))
         {
             _logger.LogError("User with id {UserId} already exists in project with id {ProjectId}.", command.UserId, command.ProjectId);
             return ResultResponse<AddUserResult>.FailureResult($"User with id {command.UserId} already exists in project with id {command.ProjectId}");

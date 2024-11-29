@@ -25,9 +25,12 @@ public class CreateProjectHandler : IRequestHandler<CreateProjectCommand, Result
 
         var project = command.MapToEntity();
         await _eclipseUnitOfWork.ProjectRepository.AddAsync(project, cancellationToken);
+
         var projectUser = ProjectUser.Create(command.UserId, project.Id);
         project.AddProjectUser(projectUser);
+
         await _eclipseUnitOfWork.SaveChangesAsync(cancellationToken);
+
         var result = project.MapToCreateProjectResult();
         return ResultResponse<CreateProjectResult>.SuccessResult(result);
     }

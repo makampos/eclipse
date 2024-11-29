@@ -1,3 +1,4 @@
+using EclipseWorks.Application.Specifications;
 using EclipseWorks.Domain.Enum;
 using EclipseWorks.Domain.Interfaces.Abstractions;
 using EclipseWorks.Domain.Models;
@@ -33,7 +34,9 @@ public class CreateTaskHandler : IRequestHandler<CreateTaskCommand, ResultRespon
             return ResultResponse<CreateTaskResult>.FailureResult($"Project with id {command.ProjectId} not found");
         }
 
-        if (project.Tasks.Count == 20)
+        var maxTaxSpecification = new MaxTasksSpecification(20);
+
+        if (maxTaxSpecification.IsSatisfiedBy(project))
         {
             _logger.LogError("Project with id {ProjectId} has reached the maximum number of tasks.", command.ProjectId);
             return ResultResponse<CreateTaskResult>.FailureResult(
