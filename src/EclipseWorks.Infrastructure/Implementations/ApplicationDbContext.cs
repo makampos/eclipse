@@ -15,6 +15,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<TaskHistory> TaskHistories { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<ProjectUser> ProjectUsers { get; set; }
+    public DbSet<TaskUser> TaskUsers { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -22,6 +23,10 @@ public class ApplicationDbContext : DbContext
 
         modelBuilder.ApplyConfiguration(new TrackableEntityConfiguration<Project>());
         modelBuilder.ApplyConfiguration(new TrackableEntityConfiguration<Task>());
+        modelBuilder.ApplyConfiguration(new TrackableEntityConfiguration<TaskHistory>());
+        modelBuilder.ApplyConfiguration(new TrackableEntityConfiguration<User>());
+        modelBuilder.ApplyConfiguration(new TrackableEntityConfiguration<ProjectUser>());
+        modelBuilder.ApplyConfiguration(new TrackableEntityConfiguration<TaskUser>());
 
         // Configure Project entity
         modelBuilder.Entity<Project>()
@@ -51,6 +56,14 @@ public class ApplicationDbContext : DbContext
             .IsRequired()
             .HasMaxLength(50);
 
+        modelBuilder.Entity<User>()
+            .Property(u => u.Role)
+            .IsRequired();
+
+        modelBuilder.Entity<User>()
+            .Property(u => u.Role)
+            .HasConversion<string>();
+
         // Configure Task entity
         modelBuilder.Entity<Task>()
             .HasKey(t => t.Id);
@@ -70,15 +83,62 @@ public class ApplicationDbContext : DbContext
             .IsRequired();
 
         modelBuilder.Entity<Task>()
-            .Property(t => t.IsCompleted)
-            .HasDefaultValue(false)
+            .Property(t => t.Status)
+            .HasConversion<string>()
             .IsRequired();
 
         modelBuilder.Entity<Task>()
+            .Property(x => x.DueDate)
+            .IsRequired();
+
+        modelBuilder.Entity<Task>()
+            .Property(x => x.CompletionDate)
+            .HasColumnType("date")
+            .HasConversion(
+                v => v.ToDateTime(TimeOnly.MinValue),
+                v => DateOnly.FromDateTime(v)
+            );
+
+        modelBuilder.Entity<Task>()
+            .Property(x => x.DueDate)
+            .HasColumnType("date")
+            .HasConversion(
+                v => v.ToDateTime(TimeOnly.MinValue),
+                v => DateOnly.FromDateTime(v)
+            );
+
+        modelBuilder.Entity<Task>()
             .HasMany(t => t.Histories)
-            .WithOne()
+            .WithOne(h => h.Task)
             .HasForeignKey(h => h.TaskId)
             .OnDelete(DeleteBehavior.Cascade); // Cascade delete for histories when task is deleted
+
+        // Configure TaskHistory entity
+        modelBuilder.Entity<TaskHistory>()
+            .HasKey(th => th.Id);
+
+        modelBuilder.Entity<TaskHistory>()
+            .Property(th => th.Id)
+            .ValueGeneratedOnAdd();
+
+        modelBuilder.Entity<TaskHistory>()
+            .Property(x => x.At)
+            .HasColumnType("timestamp with time zone")
+            .HasConversion(
+                v => DateTime.SpecifyKind(v.Date, DateTimeKind.Utc),
+                v => DateTime.SpecifyKind(v, DateTimeKind.Utc));
+
+        modelBuilder.Entity<TaskHistory>()
+            .Property(th => th.Content)
+            .HasMaxLength(1000);
+
+        modelBuilder.Entity<TaskHistory>()
+            .Property(th => th.TaskAction)
+            .HasConversion<string>();
+
+        modelBuilder.Entity<TaskHistory>()
+            .Property(th => th.CommentAction)
+            .HasConversion<string>();
 
         // Configure many-to-many relationship between User and Project
         modelBuilder.Entity<ProjectUser>()
