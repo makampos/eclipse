@@ -15,6 +15,7 @@ using FluentAssertions;
 
 namespace EclipseWorks.IntegrationTests.Controllers;
 
+[Collection("Integration Tests")]
 public class ProjectControllerTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient _client;

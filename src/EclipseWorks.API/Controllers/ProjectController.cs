@@ -46,7 +46,7 @@ public class ProjectController : ControllerBase
             return BadRequest(result.ErrorMessage);
         }
 
-        return Ok(result); //TODO: Update to use TaskResult inside ResultResponse
+        return Ok(result);
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ public class ProjectController : ControllerBase
             return BadRequest(result.ErrorMessage);
         }
 
-        return Ok(result); //TODO: Update to use TaskResult inside ResultResponse
+        return Ok(result);
     }
 
 

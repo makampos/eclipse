@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EclipseWorks.UnitTests.Features.Handlers;
 
+[Collection("Unit Tests")]
 public class GetProjectsByUserHandlerTests: BaseTestHandler<GetProjectsByUserHandler>
 {
     private readonly GetProjectsByUserHandler _handler;

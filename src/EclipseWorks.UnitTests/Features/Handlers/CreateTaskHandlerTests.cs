@@ -8,6 +8,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace EclipseWorks.UnitTests.Features.Handlers;
 
+[Collection("Unit Tests")]
 public class CreateTaskHandlerTests : BaseTestHandler<CreateTaskHandler>
 {
     private readonly CreateTaskHandler _handler;

@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace EclipseWorks.UnitTests.Features.Handlers;
 
+[Collection("Unit Tests")]
 public class DeleteTaskHandlerTests : BaseTestHandler<DeleteTaskHandler>
 {
     private readonly DeleteTaskHandler _handler;

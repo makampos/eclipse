@@ -1,13 +1,14 @@
+using EclipseWorks.Application.Features.Tasks.GetTaskResult;
+
 namespace EclipseWorks.Application.Features.GetProject;
-using Task = EclipseWorks.Domain.Models.Task;
 
 public record GetProjectResult(
     int Id,
     string Name,
     string Description,
-    ICollection<Task> Tasks)
+    ICollection<GetTaskResult> Tasks)
 {
-    public static GetProjectResult Create(int id, string name, string description, ICollection<Task> tasks)
+    public static GetProjectResult Create(int id, string name, string description, ICollection<GetTaskResult> tasks)
     {
         return new GetProjectResult(id, name, description, tasks);
     }

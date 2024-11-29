@@ -15,6 +15,7 @@ using Task = System.Threading.Tasks.Task;
 
 namespace EclipseWorks.IntegrationTests.Controllers;
 
+[Collection("Integration Tests")]
 public class TaskControllerTests : IClassFixture<CustomWebApplicationFactory>
 {
     private readonly HttpClient _client;

@@ -8,6 +8,7 @@ using FluentAssertions;
 
 namespace EclipseWorks.UnitTests.Features.Handlers;
 
+[Collection("Unit Tests")]
 public class DeleteProjectHandlerTests : BaseTestHandler<DeleteProjectHandler>
 {
     private readonly DeleteProjectHandler _handler;

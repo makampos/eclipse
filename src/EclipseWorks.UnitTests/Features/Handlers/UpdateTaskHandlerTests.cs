@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace EclipseWorks.UnitTests.Features.Handlers;
 
+[Collection("Unit Tests")]
 public class UpdateTaskHandlerTests : BaseTestHandler<UpdateTaskHandler>
 {
     private readonly UpdateTaskHandler _handler;
